@@ -18,7 +18,7 @@ public final class CustomItems {
     }
 
     public static ItemStack createMace() {
-        ItemStack item = new ItemStack(Material.DIAMOND_AXE, 1);
+        ItemStack item = new ItemStack(Material.DIAMOND_HOE, 1);
 
         // Fixed fake-durability value the resource pack's diamond_axe.json
         // "damage" predicate keys off of (see MaceCombatListener, which
