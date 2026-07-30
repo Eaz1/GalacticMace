@@ -1,0 +1,78 @@
+# ================================
+#  Mace & Wind Charge - config.yml
+# ================================
+
+resource-pack:
+  # Host the resource-pack.zip somewhere with a direct download link
+  # (GitHub releases, your own web server, MCPacks host, etc).
+  # Must be a direct .zip link, not a webpage.
+  url: "https://example.com/path/to/resource-pack.zip"
+
+  # SHA-1 hash of the zip. Leave blank to skip hash verification
+  # (Minecraft accepts blank hashes on 1.12.2, but a correct hash
+  # prevents unnecessary re-downloads for returning players).
+  sha1: ""
+
+  # Message sent if the player declines/fails to load the pack.
+  # Vanilla-texture fallback still applies either way.
+  decline-message: "&eYou declined the resource pack - custom items will use their vanilla look."
+
+  # Force players to accept the pack before they can play (1.12.2 does
+  # not support kick-on-decline like 1.17+, so this only re-prompts).
+  prompt-on-join: true
+
+items:
+  mace:
+    enabled: true
+    display-name: "&7Mace"
+    lore:
+      - "&8A heavy, blunt weapon."
+    # Base vanilla item the Mace is built on (see README for why).
+    base-item: DIAMOND_HOE
+    smash-attack-damage-bonus: 4.0
+
+  wind-charge:
+    enabled: true
+    display-name: "&aWind Charge"
+    lore:
+      - "&8Throw to launch yourself and nearby entities."
+    base-item: SNOWBALL
+    knockback-strength: 1.6
+
+# ================================
+#  Mace-exclusive enchantments
+# ================================
+# Density, Breach, and Wind Burst. Obtainable from the enchanting table
+# (on the Mace itself and on plain Books), from enchanted books, from
+# generated loot if enabled below, and combineable/transferable in an
+# anvil. Compatibility (matches real vanilla 1.21):
+#   Density   <-> Breach     : incompatible
+#   Breach    <-> Wind Burst : incompatible
+#   Density   <-> Wind Burst : COMPATIBLE - both may exist together
+# In short: Breach can never share a mace with either of the other two,
+# but Density and Wind Burst are free to coexist on the same mace.
+enchantments:
+  density:
+    max-level: 5
+    # Relative chance of being offered at the enchanting table / in loot,
+    # relative to the other two. Higher = more common.
+    weight: 10
+
+  breach:
+    max-level: 4
+    weight: 5
+
+  wind-burst:
+    max-level: 3
+    weight: 5
+
+  anvil:
+    # XP levels charged per enchantment-level combined in an anvil.
+    cost-per-level: 2
+
+  loot:
+    # Chance to find a random enchanted book (Density/Breach/Wind Burst)
+    # in generated chest loot. Disabled by default - see README for the
+    # 1.12.2 API limitation this works around before enabling.
+    enabled: false
+    chance: 0.08
