@@ -1,0 +1,23 @@
+name: GalacticMace
+version: 1.0.0
+main: me.eaz.galacticmace.GalacticMace
+author: Eaz1
+description: Custom Mace and Wind Charges for Minecraft 1.12.2
+
+commands:
+  mace:
+    description: Gives a custom mace.
+    usage: /mace
+    permission: galacticmace.mace
+
+  windcharge:
+    description: Gives custom wind charges.
+    usage: /windcharge
+    permission: galacticmace.windcharge
+
+permissions:
+  galacticmace.mace:
+    default: op
+
+  galacticmace.windcharge:
+    default: op
