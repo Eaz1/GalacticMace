@@ -1,0 +1,39 @@
+name: GalacticMace
+version: 1.0.0
+main: me.eaz.galacticmace.GalacticMace
+author: Eaz1
+description: Custom Mace and Wind Charges for Minecraft 1.12.2
+
+commands:
+  mace:
+    description: Gives a custom mace.
+    usage: /mace
+    permission: galacticmace.mace
+
+  windcharge:
+    description: Gives custom wind charges.
+    usage: /windcharge
+    permission: galacticmace.windcharge
+
+  galacticmace:
+    description: Admin commands (gives Netherite armor/tools directly - also independently craftable, see recipes in config.yml).
+    usage: /galacticmace netherite <helmet|chestplate|leggings|boots|sword|pickaxe|axe|shovel|hoe> [player]
+    permission: galacticmace.netherite
+
+  grindstone:
+    description: Strips enchantments (including Density/Breach/Wind Burst) from the item in your hand. Curse of Vanishing is kept, matching a real grindstone.
+    usage: /grindstone
+    permission: galacticmace.grindstone
+
+permissions:
+  galacticmace.mace:
+    default: op
+
+  galacticmace.windcharge:
+    default: op
+
+  galacticmace.netherite:
+    default: op
+
+  galacticmace.grindstone:
+    default: true
