@@ -1,7 +1,6 @@
 package me.eaz.galacticmace;
 
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Snowball;
@@ -23,9 +22,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class WindChargeListener implements Listener {
-
     private static final String META_KEY = "galacticmace_windcharge";
-
     private final JavaPlugin plugin;
     private final Set<UUID> pendingThrow = new HashSet<>();
 
@@ -38,7 +35,6 @@ public class WindChargeListener implements Listener {
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         ItemStack item = event.getItem();
         if (!CustomItems.isWindCharge(item)) return;
-
         Player player = event.getPlayer();
         if (player.hasCooldown(Material.SNOW_BALL)) {
             event.setCancelled(true);
@@ -53,7 +49,6 @@ public class WindChargeListener implements Listener {
         Projectile projectile = event.getEntity();
         ProjectileSource shooter = projectile.getShooter();
         if (!(shooter instanceof Player)) return;
-
         Player player = (Player) shooter;
         if (!pendingThrow.remove(player.getUniqueId())) return;
 
@@ -76,16 +71,10 @@ public class WindChargeListener implements Listener {
         Snowball snowball = (Snowball) event.getEntity();
         if (!snowball.hasMetadata(META_KEY)) return;
 
-        // Apply the blast at the exact hit point. This handles blocks and
-        // entity hits uniformly, including ArmorStands and EnderPearls.
+        // pushNearby now explicitly includes LivingEntity, ArmorStand and EnderPearl.
+        // ProjectileHitEvent therefore produces one consistent blast for both
+        // block and entity impacts without applying the hit twice.
         WindChargeMechanics.pushNearby(plugin, snowball.getLocation());
-
-        Entity hit = event.getHitEntity();
-        if (hit != null) {
-            double radius = plugin.getConfig().getDouble("wind-charge.radius", 4.0);
-            double strength = plugin.getConfig().getDouble("wind-charge.knockback-strength", 1.6);
-            WindChargeMechanics.pushEntity(plugin, snowball.getLocation(), hit, radius, strength);
-        }
         snowball.remove();
     }
 
