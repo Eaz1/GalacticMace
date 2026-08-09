@@ -5,205 +5,76 @@
 # ======================================================================
 
 resource-pack:
-  # Host the resource-pack.zip somewhere with a direct download link
-  # (GitHub releases, your own web server, MCPacks host, etc).
-  # Must be a direct .zip link, not a webpage.
   url: "https://example.com/path/to/resource-pack.zip"
-
-  # SHA-1 hash of the zip. Leave blank to skip hash verification
-  # (Minecraft accepts blank hashes on 1.12.2, but a correct hash
-  # prevents unnecessary re-downloads for returning players).
   sha1: ""
-
-  # Message sent if the player declines/fails to load the pack.
-  # Vanilla-texture fallback still applies either way.
   decline-message: "&eYou declined the resource pack - custom items will use their vanilla look."
-
   prompt-on-join: true
 
-# ======================================================================
-#  MACE
-# ======================================================================
-# Damage is computed entirely by hand (see CombatMath.java) using
-# vanilla's real armor/toughness/Protection formula, rather than through
-# Bukkit's DamageModifier system - that system doesn't rescale ARMOR
-# when a plugin changes BASE afterward, which is exactly what was
-# letting the Mace ignore armor and one-shot heavily-armored players
-# before. Every number below feeds directly into that formula.
 mace:
-  # Flat damage on every hit, falling or not.
   base-damage: 6.0
-
-  # Smash attacks (fell more than 1.5 blocks) use vanilla's real tiered
-  # bonus - +4 damage/block for the first 3 blocks fallen, +2/block for
-  # the next 5, +1/block beyond that, uncapped - then the whole hit
-  # (base + bonus) is multiplied by this, approximating "smash attacks
-  # are usually critical hits."
   smash-crit-multiplier: 1.5
-
-  # Knockback dealt to the target on a smash attack.
   knockback-strength: 1.2
 
-# ======================================================================
-#  WIND CHARGE
-# ======================================================================
-# Thrown Wind Charges and the Wind Burst enchant's area effect share all
-# of this (see WindChargeMechanics.java) so the two can't drift apart.
 wind-charge:
-  # Projectile speed (blocks/tick) the instant it launches.
   speed: 2.2
-
-  # Whether the projectile is affected by gravity. false = perfectly
-  # straight line (matches real 1.21); true = a slight snowball-like arc.
   gravity: false
-
-  # Safety-net despawn time in ticks (20 ticks = 1s) in case it never
-  # hits anything - relevant mainly with gravity disabled and nothing
-  # in its path.
   lifetime-ticks: 100
-
-  # Cooldown (ticks) before another Wind Charge can be thrown. Applies
-  # to the whole Snowball material (see README - a real snowball shares
-  # this cooldown too, since they share a base material in 1.12.2).
   cooldown-ticks: 8
-
-  # Radius and strength of the push on impact (also used by Wind Burst).
   radius: 4.0
   knockback-strength: 1.6
-
   particles: true
   sounds: true
 
-# ======================================================================
-#  ENCHANTMENTS: Density, Breach, Wind Burst
-# ======================================================================
-# Obtainable from the enchanting table (on the Mace itself and on plain
-# Books), from enchanted books, from generated loot if enabled below,
-# and combineable/transferable in an anvil. Compatibility (matches real
-# vanilla 1.21):
-#   Density   <-> Breach     : incompatible
-#   Breach    <-> Wind Burst : incompatible
-#   Density   <-> Wind Burst : COMPATIBLE - both may exist together
-# In short: Breach can never share a mace with either of the other two,
-# but Density and Wind Burst are free to coexist on the same mace.
 enchantments:
   density:
     max-level: 5
-    # Relative chance of being offered at the enchanting table / in loot.
     weight: 10
-    # Extra smash-attack damage per level, per block fallen.
     damage-per-level: 0.5
-
   breach:
     max-level: 4
     weight: 5
-    # Fraction of the target's armor+toughness ignored per level before
-    # the armor formula runs (0.15 = 15%). Does not affect Protection.
     armor-ignore-per-level: 0.15
-
   wind-burst:
     max-level: 3
     weight: 5
-    # Upward velocity added to the attacker per level on a successful
-    # smash attack, reduced by the attacker's own Blast Protection.
     launch-per-level: 0.55
-
-  # Chance a high-cost enchanting table roll ALSO bundles a second
-  # compatible enchant into the same offer (matching real vanilla, e.g.
-  # a high-level table roll granting Sharpness + Looting together).
-  # Density + Wind Burst is the only bundle our compatibility rules
-  # allow (Breach excludes both, so it never bundles). Scales with the
-  # roll's cost out of 30 - this is the chance's cap, reached at cost 30.
   bundle-chance-multiplier: 0.75
-
   anvil:
     cost-per-level: 2
-
   loot:
-    # See README for the 1.12.2 API limitation ("first chest opened
-    # server-wide" heuristic) this works around before enabling.
     enabled: false
     chance: 0.08
 
-# ======================================================================
-#  NETHERITE ARMOR & TOOLS
-# ======================================================================
-# Command-only, no crafting recipe (see /galacticmace netherite in
-# plugin.yml). Armor points/toughness/knockback-resistance/attack-damage
-# beyond the base item's real vanilla value are applied via NMSUtil's
-# reflection-based attribute injection - real functional stats against
-# EVERY damage source, not just plugin code. Durability numbers are the
-# real Minecraft 1.21 values. Enchantability is intentionally left as
-# whatever the base item (Diamond for tools, Chainmail for armor)
-# already has - see README.
 netherite:
   toughness-per-piece: 3.0
   knockback-resistance-per-piece: 0.1
-
   helmet:
     armor: 4
-    durability: 407
+    durability: 1024
   chestplate:
     armor: 9
-    durability: 592
+    durability: 1024
   leggings:
     armor: 7
-    durability: 555
+    durability: 1024
   boots:
     armor: 4
-    durability: 481
-
+    durability: 1024
   sword:
     attack-damage: 8.0
-    durability: 2031
+    durability: 2048
   pickaxe:
     attack-damage: 6.0
-    durability: 2031
+    durability: 2048
   axe:
     attack-damage: 10.0
-    durability: 2031
+    durability: 2048
   shovel:
     attack-damage: 6.5
-    durability: 2031
+    durability: 2048
   hoe:
-    # No attack-damage entry - hoes deal a flat 1 damage in Java Edition
-    # regardless of material, matching real vanilla; Netherite gets no bonus here.
-    durability: 2031
+    durability: 2048
 
-# ======================================================================
-#  CRAFTING RECIPES
-# ======================================================================
-# Everything here is loaded and registered at startup by RecipeLoader.
-# Invalid recipes are skipped with a warning in the console log rather
-# than preventing the plugin from starting.
-#
-# Setting enabled: false for a recipe that's never been enabled before
-# takes effect immediately. Flipping an ALREADY-enabled recipe off needs
-# a full server restart (not just /reload) to actually stop working -
-# 1.12.2 has no API to un-register a single recipe once it's live.
-#
-# type: shaped | shapeless
-#
-# result: resolves to one of the plugin's custom items - "mace",
-#         "wind_charge", "netherite_helmet", "netherite_chestplate",
-#         "netherite_leggings", "netherite_boots", "netherite_sword",
-#         "netherite_pickaxe", "netherite_axe", "netherite_shovel",
-#         "netherite_hoe" - or anything else is parsed as a plain
-#         Material name.
-# result-amount: how many the recipe produces (default 1).
-#
-# shaped recipes need "shape" (1-3 rows, each up to 3 characters) and
-# an "ingredients" map from symbol -> material/custom-item key.
-# shapeless recipes need an "ingredients" list of material/custom-item
-# keys (repeat an entry for more than one of that ingredient).
-#
-# Any shaped-recipe symbol mapped to "wind_charge" or "mace" gets an
-# extra check at craft time so a plain vanilla item can't be substituted
-# for it. The same protection runs automatically in the other direction
-# too - a crafted Mace or Netherite item can't be fed back in as if it
-# were "just" a plain Diamond Axe/Sword/etc ingredient, since they share
-# a base material. 1.12.2's recipe API can't check item NBT/Lore on its
-# own, so both directions need this plugin's own check.
 recipes:
   mace:
     enabled: true
@@ -217,7 +88,6 @@ recipes:
       E: ELYTRA
       W: wind_charge
       D: DRAGON_EGG
-
   wind_charge:
     enabled: true
     type: shapeless
@@ -226,23 +96,8 @@ recipes:
     ingredients:
       - ENDER_PEARL
       - SNOWBALL
-
-  # ----------------------------------------------------------------
-  # Netherite - mirrors each vanilla Diamond recipe, with the
-  # corresponding Diamond gear replacing the raw Diamond, and a Stick
-  # added for the tools (matching the real upgrade template's shape).
-  # Note: since Diamond Sword/Axe/Pickaxe/Shovel/Hoe and Chainmail
-  # armor are also what THIS PLUGIN's own Mace/Netherite items are
-  # built on, RecipeLoader automatically rejects a crafted item being
-  # fed back in as if it were plain material - see SHARED_MATERIALS
-  # in RecipeLoader.java.
-  # ----------------------------------------------------------------
   netherite_ingot:
-    # No such item exists in this plugin yet - included so the config
-    # shape matches vanilla's naming. Leave disabled until a Netherite
-    # Ingot item is added; RecipeLoader safely skips disabled entries.
     enabled: false
-
   netherite_helmet:
     enabled: true
     type: shaped
@@ -252,7 +107,6 @@ recipes:
       - "D D"
     ingredients:
       D: DIAMOND_HELMET
-
   netherite_chestplate:
     enabled: true
     type: shaped
@@ -263,7 +117,6 @@ recipes:
       - "DDD"
     ingredients:
       D: DIAMOND_CHESTPLATE
-
   netherite_leggings:
     enabled: true
     type: shaped
@@ -274,7 +127,6 @@ recipes:
       - "D D"
     ingredients:
       D: DIAMOND_LEGGINGS
-
   netherite_boots:
     enabled: true
     type: shaped
@@ -284,7 +136,6 @@ recipes:
       - "D D"
     ingredients:
       D: DIAMOND_BOOTS
-
   netherite_sword:
     enabled: true
     type: shaped
@@ -296,7 +147,6 @@ recipes:
     ingredients:
       D: DIAMOND_SWORD
       S: STICK
-
   netherite_pickaxe:
     enabled: true
     type: shaped
@@ -308,7 +158,6 @@ recipes:
     ingredients:
       D: DIAMOND_PICKAXE
       S: STICK
-
   netherite_axe:
     enabled: true
     type: shaped
@@ -320,7 +169,6 @@ recipes:
     ingredients:
       D: DIAMOND_AXE
       S: STICK
-
   netherite_shovel:
     enabled: true
     type: shaped
@@ -332,7 +180,6 @@ recipes:
     ingredients:
       D: DIAMOND_SPADE
       S: STICK
-
   netherite_hoe:
     enabled: true
     type: shaped
