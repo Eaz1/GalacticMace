@@ -1,6 +1,7 @@
 package me.eaz.galacticmace;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Snowball;
@@ -21,24 +22,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-/**
- * Wind Charges are a re-skinned Snowball (see CustomItems) - the base
- * material is kept specifically so the existing throw-on-right-click,
- * stacking, and event lifecycle all keep working; what changes here is
- * everything about HOW it flies and what it does on impact.
- *
- * Straight-line flight is achieved by disabling the projectile's gravity
- * and giving it a fixed velocity along the shooter's look direction the
- * instant it launches - both confirmed-available on Entity in 1.12.2
- * (setGravity) rather than switching to a different base entity, which
- * would have reopened the whole "does this new entity have side effects
- * to suppress" question the Mace's hoe-vs-axe switch already ran into.
- *
- * 1.12.2 has no way to ask "which ItemStack was this projectile thrown
- * from," so the same pending-throw correlation trick from before is
- * still how a real Wind Charge throw gets distinguished from a plain
- * vanilla snowball throw.
- */
 public class WindChargeListener implements Listener {
 
     private static final String META_KEY = "galacticmace_windcharge";
@@ -53,7 +36,6 @@ public class WindChargeListener implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-
         ItemStack item = event.getItem();
         if (!CustomItems.isWindCharge(item)) return;
 
@@ -62,14 +44,12 @@ public class WindChargeListener implements Listener {
             event.setCancelled(true);
             return;
         }
-
         pendingThrow.add(player.getUniqueId());
     }
 
     @EventHandler
     public void onLaunch(ProjectileLaunchEvent event) {
         if (!(event.getEntity() instanceof Snowball)) return;
-
         Projectile projectile = event.getEntity();
         ProjectileSource shooter = projectile.getShooter();
         if (!(shooter instanceof Player)) return;
@@ -78,22 +58,15 @@ public class WindChargeListener implements Listener {
         if (!pendingThrow.remove(player.getUniqueId())) return;
 
         projectile.setMetadata(META_KEY, new FixedMetadataValue(plugin, true));
-
-        boolean gravity = plugin.getConfig().getBoolean("wind-charge.gravity", false);
+        projectile.setGravity(plugin.getConfig().getBoolean("wind-charge.gravity", false));
         double speed = plugin.getConfig().getDouble("wind-charge.speed", 2.2);
         int cooldownTicks = plugin.getConfig().getInt("wind-charge.cooldown-ticks", 8);
         int lifetimeTicks = plugin.getConfig().getInt("wind-charge.lifetime-ticks", 100);
-
-        projectile.setGravity(gravity);
         projectile.setVelocity(player.getLocation().getDirection().normalize().multiply(speed));
-
         player.setCooldown(Material.SNOW_BALL, cooldownTicks);
 
-        // Safety-net despawn in case it never hits anything (e.g. thrown into open sky with gravity off).
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            if (projectile.isValid()) {
-                projectile.remove();
-            }
+            if (projectile.isValid()) projectile.remove();
         }, lifetimeTicks);
     }
 
@@ -103,14 +76,22 @@ public class WindChargeListener implements Listener {
         Snowball snowball = (Snowball) event.getEntity();
         if (!snowball.hasMetadata(META_KEY)) return;
 
+        // Apply the blast at the exact hit point. This handles blocks and
+        // entity hits uniformly, including ArmorStands and EnderPearls.
         WindChargeMechanics.pushNearby(plugin, snowball.getLocation());
+
+        Entity hit = event.getHitEntity();
+        if (hit != null) {
+            double radius = plugin.getConfig().getDouble("wind-charge.radius", 4.0);
+            double strength = plugin.getConfig().getDouble("wind-charge.knockback-strength", 1.6);
+            WindChargeMechanics.pushEntity(plugin, snowball.getLocation(), hit, radius, strength);
+        }
+        snowball.remove();
     }
 
-    /** No explosion damage, ever - even the 3 damage a vanilla snowball deals to Blazes/Endermen is suppressed. */
     @EventHandler(priority = EventPriority.HIGH)
     public void onDamage(EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof Snowball)) return;
-        if (event.getDamager().hasMetadata(META_KEY)) {
+        if (event.getDamager() instanceof Snowball && event.getDamager().hasMetadata(META_KEY)) {
             event.setCancelled(true);
         }
     }
